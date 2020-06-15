@@ -20,6 +20,7 @@ def update_ball(x, y):
     screen.blit(ballIMG, (x, y))
 
 
+# CAN BE USED LATER FOR TRIES
 def ball_reset():
     global ballY, ball_velocity, ball_acceleration
     ballY = 968
@@ -27,7 +28,7 @@ def ball_reset():
     ball_acceleration = 9.8
 
 
-# PIPE(S) (PAIR)
+# PIPES IN PAIRS
 pipecount = 3
 pipeIMG = []
 pipe2IMG = []
@@ -55,7 +56,15 @@ def pipe_reset(num):
     pipeY[num] = random.randrange(300, height-300, 50)
 
 
-# PIPES FOR LATER
+# COLLISIONS ARE BEING CHECKED IN THE LOOP FOR THE PIPES
+
+
+# QUIT GAME
+def end():
+    global go
+    go = False
+    screen.fill((0, 0, 0))
+    # QUIT THE GAME
 
 
 go = True
@@ -83,13 +92,16 @@ while go:
         if pipe_state[i]:
             pipe(pipeX[i], i)
             pipeX[i] -= pipe_speed
+        # IS THE BALL INSIDE THE PIPE?
+        if ballX < (pipeX[i] + 281) and ballX + 32 > pipeX[i]:
+            if ballY + 32 > pipeY[i] or ballY < pipeY[i] - 200:
+                end()
 
     # UPDATE BALL
     ballY += ball_velocity
     ball_velocity += ball_acceleration
     update_ball(ballX, ballY)
-    if ballY > height:
-        ballY = height-64
-        ball_reset()
+    if ballY > height or ballY < 0:
+        end()
 
     pygame.display.update()
