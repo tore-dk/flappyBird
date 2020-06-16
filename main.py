@@ -3,7 +3,7 @@ import time
 import random
 
 pygame.init()
-width, height = 3500, 864
+width, height = 3000, 864
 screen = pygame.display.set_mode((width, height))
 
 velocity = 100
@@ -18,11 +18,8 @@ bgIMG = pygame.image.load('flappyBackground.png')
 bg_strech = 0
 for i in range(bg_count):
     bgIMG_list.append(bgIMG)
-    if bg_strech <= width:
-        bgX.append(bg_strech)
-        bg_strech += 2304
-    else:
-        bgX.append(width)
+    bgX.append(bg_strech)
+    bg_strech += 2304
     bgY.append(0)
 
 
@@ -85,12 +82,12 @@ go = True
 
 
 def end():
-    return
     global go
     go = False
     game_over = pygame.image.load('flappyBirdGameOver.png')
     screen.fill((0, 0, 0))
-    screen.blit(bgIMG, (0, 0))
+    for j in range(bg_count):
+        show_bg(bgX[j], bgY[j], j)
     screen.blit(game_over, (width/2 - 544, 100))
     finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
     wide = finalscore.get_rect().width
