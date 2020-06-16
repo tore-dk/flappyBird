@@ -62,7 +62,7 @@ for i in range(pipecount):
     pipeIMG.append(pygame.image.load('flappy.png'))
     pipe2IMG.append(pygame.transform.flip(pygame.image.load('flappy.png'), True, True))
     pipeX.append(width)
-    pipeY.append(random.randrange(300, height-300, 20))
+    pipeY.append(random.randrange(250, height-250, 5))
     pipe_state.append(False)
 pipe_state[0] = True
 
@@ -89,13 +89,13 @@ def end():
     go = False
     game_over = pygame.image.load('flappyBirdGameOver.png')
     screen.fill((0, 0, 0))
+    screen.blit(bgIMG, (0, 0))
     screen.blit(game_over, (width/2 - 544, 100))
     finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
     wide = finalscore.get_rect().width
     screen.blit(finalscore, (width/2 - wide/2, 500))
     pygame.display.update()
     time.sleep(5)
-    # QUIT THE GAME
 
 
 # SCORE
