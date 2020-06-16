@@ -6,7 +6,7 @@ pygame.init()
 width, height = 3000, 864
 screen = pygame.display.set_mode((width, height))
 
-velocity = 100
+velocity = 50
 
 # BACKGROUND INITIATE
 # IDE MAN KAN TAGE MODULO AF LÆNGDEN AF SKÆRMEN OG BRUGE DET TIL AT HAVE LANG SKÆRM
@@ -30,7 +30,7 @@ def show_bg(x, y, index):
 # BALL START
 ballIMG = pygame.image.load('ball.png')
 ballX = 300
-ballY = height
+ballY = height/2
 ball_velocity = -velocity
 ball_acceleration = 9.8
 
@@ -106,7 +106,26 @@ def show_score(x, y):
     screen.blit(thescore, (x, y))
 
 
-# GAME LOOP
+# BEFORE GAME
+wait = True
+
+while wait:
+    for i in range(bg_count):
+        bgX[i] -= pipe_speed/5
+        if bgX[i] < -2304:
+            bgX[i] = width - pipe_speed/5
+        show_bg(bgX[i], bgY[i], i)
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                wait = False
+    update_ball(ballX, ballY)
+    flappy_bird_textIMG = pygame.image.load('flappyBirdText.png')
+    screen.blit(flappy_bird_textIMG, (1000, height/2 - 250))
+    pygame.display.update()
+
+
+# GAME LOOP IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 while go:
     # BACKGROUND
     screen.fill((0, 0, 0))
