@@ -3,7 +3,7 @@ import time
 import random
 
 pygame.init()
-width, height = 1600, 900
+width, height = 1000, 900
 screen = pygame.display.set_mode((width, height))
 
 velocity = 100
@@ -58,8 +58,10 @@ def pipe_reset(num):
 
 # COLLISIONS ARE BEING CHECKED IN THE LOOP FOR THE PIPES
 
-
 # QUIT GAME
+go = True
+
+
 def end():
     global go
     go = False
@@ -67,12 +69,22 @@ def end():
     # QUIT THE GAME
 
 
-go = True
+# SCORE
+score = 0
+sfont = pygame.font.Font('freesansbold.ttf', 32)
+textX, textY = 10, 10
+
+
+def show_score(x, y):
+    thescore = sfont.render("Score:" + str(score), True, (255, 255, 0))
+    screen.blit(thescore, (x, y))
+
+
 while go:
-    time.sleep(.05)
+    time.sleep(.04)
 
     # BACKGROUND
-    screen.fill((255, 255, 255))
+    screen.fill((0, 0, 0))
 
     # EVENTS
     for event in pygame.event.get():
@@ -82,8 +94,9 @@ while go:
             if event.key == pygame.K_SPACE:
                 ball_velocity = -40
 
-    # UPDATE PIPE(S)
+    # UPDATE PIPES
     for i in range(pipecount):
+        # NEW PIPES AND RESETTING PIPES
         if pipeX[i] < -281:
             pipe_reset(i)
             pipe_state[i] = False
@@ -96,6 +109,10 @@ while go:
         if ballX < (pipeX[i] + 281) and ballX + 32 > pipeX[i]:
             if ballY + 32 > pipeY[i] or ballY < pipeY[i] - 200:
                 end()
+        # ADD SCORE AFTER PIPE
+        if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
+            score += 1
+            print(score)
 
     # UPDATE BALL
     ballY += ball_velocity
@@ -103,5 +120,8 @@ while go:
     update_ball(ballX, ballY)
     if ballY > height or ballY < 0:
         end()
+
+    # UPDATE SCORE
+    show_score(textX, textY )
 
     pygame.display.update()
