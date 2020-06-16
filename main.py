@@ -3,7 +3,7 @@ import time
 import random
 
 pygame.init()
-width, height = 1000, 900
+width, height = 1600, 900
 screen = pygame.display.set_mode((width, height))
 
 velocity = 100
@@ -65,18 +65,26 @@ go = True
 def end():
     global go
     go = False
-    screen.fill((0, 0, 0))
+    game_over = pygame.image.load('flappyBirdGameOver.png')
+    while True:
+        screen.fill((0, 0, 0))
+        screen.blit(game_over, (width/2 - 544, 100))
+        finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
+        wide = finalscore.get_rect().width
+        screen.blit(finalscore, (width/2 - wide/2, 500))
+        pygame.display.update()
     # QUIT THE GAME
 
 
 # SCORE
 score = 0
-sfont = pygame.font.Font('freesansbold.ttf', 32)
+font_size = 64
+sfont = pygame.font.Font('freesansbold.ttf', font_size)
 textX, textY = 10, 10
 
 
 def show_score(x, y):
-    thescore = sfont.render("Score:" + str(score), True, (255, 255, 0))
+    thescore = sfont.render("Score: " + str(score), True, (255, 255, 0))
     screen.blit(thescore, (x, y))
 
 
@@ -112,7 +120,6 @@ while go:
         # ADD SCORE AFTER PIPE
         if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
             score += 1
-            print(score)
 
     # UPDATE BALL
     ballY += ball_velocity
@@ -122,6 +129,6 @@ while go:
         end()
 
     # UPDATE SCORE
-    show_score(textX, textY )
+    show_score(textX, textY)
 
     pygame.display.update()
