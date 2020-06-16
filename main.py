@@ -3,10 +3,32 @@ import time
 import random
 
 pygame.init()
-width, height = 1600, 900
+width, height = 1500, 864
 screen = pygame.display.set_mode((width, height))
 
 velocity = 100
+
+# BACKGROUND INITIATE
+# IDE MAN KAN TAGE MODULO AF LÆNGDEN AF SKÆRMEN OG BRUGE DET TIL AT HAVE LANG SKÆRM
+bg_count = width // 2304 + 2
+bgIMG_list = []
+bgX = []
+bgY = []
+bgIMG = pygame.image.load('flappyBackground.png')
+bg_strech = 0
+for i in range(bg_count):
+    bgIMG_list.append(bgIMG)
+    if bg_strech < width:
+        bgX.append(bg_strech)
+        bg_strech += 2304
+    else:
+        bgX.append(width)
+    bgY.append(0)
+
+
+def show_bg(x, y, index):
+    screen.blit(bgIMG_list[index], (x, y))
+
 
 # BALL START
 ballIMG = pygame.image.load('ball.png')
@@ -66,13 +88,13 @@ def end():
     global go
     go = False
     game_over = pygame.image.load('flappyBirdGameOver.png')
-    while True:
-        screen.fill((0, 0, 0))
-        screen.blit(game_over, (width/2 - 544, 100))
-        finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
-        wide = finalscore.get_rect().width
-        screen.blit(finalscore, (width/2 - wide/2, 500))
-        pygame.display.update()
+    screen.fill((0, 0, 0))
+    screen.blit(game_over, (width/2 - 544, 100))
+    finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
+    wide = finalscore.get_rect().width
+    screen.blit(finalscore, (width/2 - wide/2, 500))
+    pygame.display.update()
+    time.sleep(5)
     # QUIT THE GAME
 
 
@@ -88,11 +110,19 @@ def show_score(x, y):
     screen.blit(thescore, (x, y))
 
 
+# GAME LOOP
 while go:
-    time.sleep(.04)
+    time.sleep(.02)
 
     # BACKGROUND
     screen.fill((0, 0, 0))
+
+    # UPDATE NEW BACKGROUND
+    for i in range(bg_count):
+        bgX[i] -= pipe_speed/2
+        if bgX[i] < -2304:
+            bgX[i] = width
+        show_bg(bgX[i], bgY[i], i)
 
     # EVENTS
     for event in pygame.event.get():
