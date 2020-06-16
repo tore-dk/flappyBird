@@ -3,7 +3,7 @@ import time
 import random
 
 pygame.init()
-width, height = 1500, 864
+width, height = 3500, 864
 screen = pygame.display.set_mode((width, height))
 
 velocity = 100
@@ -18,7 +18,7 @@ bgIMG = pygame.image.load('flappyBackground.png')
 bg_strech = 0
 for i in range(bg_count):
     bgIMG_list.append(bgIMG)
-    if bg_strech < width:
+    if bg_strech <= width:
         bgX.append(bg_strech)
         bg_strech += 2304
     else:
@@ -51,13 +51,13 @@ def ball_reset():
 
 
 # PIPES IN PAIRS
-pipecount = 3
+pipecount = width//700 + 2
 pipeIMG = []
 pipe2IMG = []
 pipeX = []
 pipeY = []
 pipe_state = []
-pipe_speed = 5
+pipe_speed = 20
 for i in range(pipecount):
     pipeIMG.append(pygame.image.load('flappy.png'))
     pipe2IMG.append(pygame.transform.flip(pygame.image.load('flappy.png'), True, True))
@@ -85,6 +85,7 @@ go = True
 
 
 def end():
+    return
     global go
     go = False
     game_over = pygame.image.load('flappyBirdGameOver.png')
@@ -119,9 +120,9 @@ while go:
 
     # UPDATE NEW BACKGROUND
     for i in range(bg_count):
-        bgX[i] -= pipe_speed/2
+        bgX[i] -= pipe_speed/5
         if bgX[i] < -2304:
-            bgX[i] = width
+            bgX[i] = width - pipe_speed/5
         show_bg(bgX[i], bgY[i], i)
 
     # EVENTS
@@ -129,6 +130,8 @@ while go:
         if event.type == pygame.QUIT:
             go = False
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:
+                time.sleep(5)
             if event.key == pygame.K_SPACE:
                 ball_velocity = -40
 
