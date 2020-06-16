@@ -55,24 +55,30 @@ pipeX = []
 pipeY = []
 pipe_state = []
 pipe_speed = 20
+pipe_gap = []
 for i in range(pipecount):
     pipeIMG.append(pygame.image.load('flappy.png'))
     pipe2IMG.append(pygame.transform.flip(pygame.image.load('flappy.png'), True, True))
     pipeX.append(width)
-    pipeY.append(random.randrange(250, height-250, 5))
     pipe_state.append(False)
+    gap = random.randrange(200, 500)
+    pipe_gap.append(gap)
+    # WHEN EDITING PIPE Y  IT IS IMPORTANT -
+    # TO EDIT IT BELOW, TOO (INSIDE 'pipe_reset')
+    pipeY.append(random.randrange(gap + 50, height - 50))
+
 pipe_state[0] = True
 
 
-def pipe(x, index):
+def pipe(x, index, space):
     screen.blit(pipeIMG[index], (x, pipeY[index]))
-    screen.blit(pipe2IMG[index], (x, pipeY[index] - 200 - 1080))
+    screen.blit(pipe2IMG[index], (x, pipeY[index] - space - 1080))
 
 
 def pipe_reset(num):
     global pipeX, pipeY
     pipeX[num] = width
-    pipeY[num] = random.randrange(300, height-300, 50)
+    pipeY[num] = random.randrange(gap + 50, height - 50)
 
 
 # COLLISIONS ARE BEING CHECKED IN THE LOOP FOR THE PIPES
@@ -140,12 +146,13 @@ while go:
             pipe_state[i] = False
         elif pipeX[i] < width - 700:
             pipe_state[(i + 1) % pipecount] = True
+        # UPDATE PIPE ON SCREEN
         if pipe_state[i]:
-            pipe(pipeX[i], i)
+            pipe(pipeX[i], i, pipe_gap[i])
             pipeX[i] -= pipe_speed
         # IS THE BALL INSIDE THE PIPE?
         if ballX < (pipeX[i] + 281) and ballX + 32 > pipeX[i]:
-            if ballY + 32 > pipeY[i] or ballY < pipeY[i] - 200:
+            if ballY + 32 > pipeY[i] or ballY < pipeY[i] - pipe_gap[i]:
                 end()
         # ADD SCORE AFTER PIPE
         if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
