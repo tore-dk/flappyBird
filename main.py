@@ -39,14 +39,6 @@ def update_ball(x, y):
     screen.blit(ballIMG, (x, y))
 
 
-# CAN BE USED LATER FOR TRIES
-def ball_reset():
-    global ballY, ball_velocity, ball_acceleration
-    ballY = 968
-    ball_velocity = -velocity
-    ball_acceleration = 9.8
-
-
 # PIPES IN PAIRS
 pipecount = width//700 + 2
 pipeIMG = []
@@ -54,7 +46,7 @@ pipe2IMG = []
 pipeX = []
 pipeY = []
 pipe_state = []
-pipe_speed = 20
+pipe_speed = 8
 pipe_gap = []
 for i in range(pipecount):
     pipeIMG.append(pygame.image.load('flappy.png'))
@@ -116,8 +108,6 @@ def show_score(x, y):
 
 # GAME LOOP
 while go:
-    time.sleep(.02)
-
     # BACKGROUND
     screen.fill((0, 0, 0))
 
@@ -133,8 +123,6 @@ while go:
         if event.type == pygame.QUIT:
             go = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_p:
-                time.sleep(5)
             if event.key == pygame.K_SPACE:
                 ball_velocity = -40
 
