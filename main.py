@@ -41,8 +41,8 @@ ballIMG = pygame.transform.scale(ballIMG, (math.ceil(128/1.5), math.ceil(90/1.5)
 ball_height = ballIMG.get_rect().height
 ball_width = ballIMG.get_rect().width
 ballX = 300
-ballY = height/2
-ball_velocity = -30
+ballY = (2*height)/3
+ball_velocity = -0
 ball_acceleration = 4
 
 
@@ -128,8 +128,6 @@ title_height = titleIMG.get_rect().height
 title_width = titleIMG.get_rect().width
 titleIMG = pygame.transform.scale(titleIMG, (int(title_width/2), int(title_height/2)))
 wait = True
-up = True
-up_down_speed = 1
 while wait:
     for i in range(bg_count):
         bgX[i] -= pipe_speed/5
@@ -137,22 +135,19 @@ while wait:
             bgX[i] = width - pipe_speed/5
         show_bg(bgX[i], bgY[i], i)
     for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            wait, go = False, False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
+                ball_jump()
                 wait = False
     # BIRD FLYING UP N DOWN
-    if ballY < height/3:
-        up = False
-        up_down_speed = 1
-    elif ballY > (2*height)/3:
-        up = True
-        up_down_speed = 1
-    if up:
-        ballY -= up_down_speed
-        up_down_speed += 0.1
+    if ballY < height/2:
+        ball_velocity += 0.2
     else:
-        ballY += up_down_speed
-        up_down_speed += 0.1
+        ball_velocity -= 0.2
+    ballY += ball_velocity
+
     update_ball(ballX, ballY)
     screen.blit(titleIMG, (width / 3, height / 2 - titleIMG.get_rect().height/2))
     pygame.display.update()
@@ -166,7 +161,7 @@ while go:
     # UPDATE NEW BACKGROUND
     for i in range(bg_count):
         bgX[i] -= pipe_speed/5
-        if bgX[i] < -2304:
+        if bgX[i] < -bg_width:
             bgX[i] = width - pipe_speed/5
         show_bg(bgX[i], bgY[i], i)
 
