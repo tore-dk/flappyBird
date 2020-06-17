@@ -1,3 +1,8 @@
+## FORSLAG
+# ILDKUGLER
+# MULTIPLAYER (ONLINE)
+# KØDÆDENDE PLANTER
+# BUTIK (MED POINT)
 import pygame
 import random
 import math
@@ -58,7 +63,8 @@ def ball_jump():
 
 
 # PIPES IN PAIRS
-pipecount = width//700 + 2
+between_pipes = 500
+pipecount = width//between_pipes + 2
 pipeIMG = []
 pipe2IMG = []
 pipeX = []
@@ -93,20 +99,48 @@ def pipe_reset(num):
 
 # COLLISIONS ARE BEING CHECKED IN THE LOOP FOR THE PIPES
 
+# RESET VARIABLES WHEN DEAD
+def reset():
+    global pipeX, pipeY, pipe_state, pipe_gap, birdX, birdY, bird_acceleration, bird_velocity
+    # RESET PIPES
+    pipeX = []
+    pipeY = []
+    pipe_state = []
+    pipe_gap = []
+    for i in range(pipecount):
+        pipeX.append(width)
+        pipe_state.append(False)
+        gap = random.randrange(250, 400)
+        pipe_gap.append(gap)
+        pipeY.append(random.randrange(gap + 50, height - 50))
+    pipe_state[0] = True
+    # RESET BIRD
+    birdX = 300
+    birdY = (2 * height) / 3
+    bird_velocity = -0
+    bird_acceleration = 4
+
+
 # QUIT GAME
 go = True
 
 
 def game_over():
-    global go
-    go = False
+    global go, running, wait
+    running = True
     game_over_text = pygame.image.load('flappyBirdGameOver.png')
     end = True
     while end:
         screen.fill((0, 0, 0))
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
-                end = False
+                end, running, go = False, False, False
+                print("lol")
+            if i.type == pygame.KEYDOWN:
+                if i.key == pygame.K_SPACE:
+                    end = False
+                    reset()
+                    ball_jump()
         for j in range(bg_count):
             show_bg(bgX[j], bgY[j], j)
         screen.blit(game_over_text, (width/2 - 544, 100))
@@ -128,91 +162,104 @@ def show_score(x, y):
     screen.blit(thescore, (x, y))
 
 
-# BEFORE GAME
+# BEFORE GAME VARIABLES
 titleIMG = pygame.image.load('flappyBirdText.png')
 title_height = titleIMG.get_rect().height
 title_width = titleIMG.get_rect().width
 titleIMG = pygame.transform.scale(titleIMG, (int(title_width/2), int(title_height/2)))
-wait = True
-while wait:
+
+
+def before_game():
+    global birdY, birdX, bird_velocity, wait, go, running
     for i in range(bg_count):
-        bgX[i] -= pipe_speed/5
+        bgX[i] -= pipe_speed / 5
         if bgX[i] < -2304:
-            bgX[i] = width - pipe_speed/5
+            bgX[i] = width - pipe_speed / 5
         show_bg(bgX[i], bgY[i], i)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            wait, go = False, False
+            wait, go, running = False, False, False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 ball_jump()
                 wait = False
     # BIRD FLYING UP N DOWN
-    if birdY < height/2:
+    if birdY < height / 2:
         bird_velocity += 0.2
     else:
         bird_velocity -= 0.2
     birdY += bird_velocity
 
     update_bird(birdX, birdY)
-    screen.blit(titleIMG, (width / 3, height / 2 - titleIMG.get_rect().height/2))
+    screen.blit(titleIMG, (width / 3, height / 2 - titleIMG.get_rect().height / 2))
     pygame.display.update()
 
 
-# GAME LOOP IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-while go:
-    # BACKGROUND
-    screen.fill((0, 0, 0))
+# ACTUAL GAME IT STARTS HERE
+running = True
+while running:
+    birdX = 100
+    wait, go = True, True
+    # BEFORE GAME LOOP
+    while wait:
+        before_game()
 
-    # UPDATE NEW BACKGROUND
-    for i in range(bg_count):
-        bgX[i] -= pipe_speed/5
-        if bgX[i] < -bg_width:
-            bgX[i] = width - pipe_speed/5
-        show_bg(bgX[i], bgY[i], i)
+    # GAME LOOP IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+    while go:
+        # BACKGROUND
+        screen.fill((0, 0, 0))
 
-    # EVENTS
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            go = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                ball_jump()
-    if not go:
-        break
+        # UPDATE NEW BACKGROUND
+        for i in range(bg_count):
+            bgX[i] -= pipe_speed/5
+            if bgX[i] < -bg_width:
+                bgX[i] = width - pipe_speed/5
+            show_bg(bgX[i], bgY[i], i)
 
-    # UPDATE PIPES
-    for i in range(pipecount):
-        # NEW PIPES AND RESETTING PIPES
-        if pipeX[i] < -281:
-            pipe_reset(i)
-            pipe_state[i] = False
-        elif pipeX[i] < width - 700:
-            pipe_state[(i + 1) % pipecount] = True
-        # UPDATE PIPE ON SCREEN
-        if pipe_state[i]:
-            pipe(pipeX[i], i, pipe_gap[i])
-            pipeX[i] -= pipe_speed
-        # IS THE BALL INSIDE THE PIPE?
-        if birdX < (pipeX[i] + 281) and birdX + bird_width > pipeX[i]:
-            if birdY + bird_height > pipeY[i] or birdY < pipeY[i] - pipe_gap[i]:
-                game_over()
-        # ADD SCORE AFTER PIPE
-        if pipeX[i] + 250 > birdX >= pipeX[i] + 250 - pipe_speed:
-            score += 1
+        # EVENTS
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                go, wait, running = False, False, False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    ball_jump()
+        if not go:
+            break
 
-    # UPDATE BALL
-    bird_velocity += bird_acceleration
-    birdY += bird_velocity
-    if bird_velocity < 0:
-        update_bird(birdX, birdY, bird_up)
-    elif bird_velocity > 0:
-        update_bird(birdX, birdY, bird_down)
-    else:
-        update_bird(birdX, birdY)
-    if birdY > height or birdY < 0:
-        game_over()
-    # UPDATE SCORE
-    show_score(textX, textY)
+        # UPDATE PIPES
+        for i in range(pipecount):
+            # NEW PIPES AND RESETTING PIPES
+            if pipeX[i] < -281:
+                pipe_reset(i)
+                pipe_state[i] = False
+                birdX += 10
+            elif pipeX[i] < width - between_pipes:
+                pipe_state[(i + 1) % pipecount] = True
+            # UPDATE PIPE ON SCREEN
+            if pipe_state[i]:
+                pipe(pipeX[i], i, pipe_gap[i])
+                pipeX[i] -= pipe_speed
+            # IS THE BALL INSIDE THE PIPE?
+            if birdX < (pipeX[i] + 281) and birdX + bird_width > pipeX[i]:
+                if birdY + bird_height > pipeY[i] or birdY < pipeY[i] - pipe_gap[i]:
+                    game_over()
+            # ADD SCORE AFTER PIPE
+            if pipeX[i] + 250 > birdX >= pipeX[i] + 250 - pipe_speed:
+                score += 1
 
-    pygame.display.update()
+        # UPDATE BALL
+        bird_velocity += bird_acceleration
+        birdY += bird_velocity
+        if bird_velocity < 0:
+            update_bird(birdX, birdY, bird_up)
+        elif bird_velocity > 0:
+            update_bird(birdX, birdY, bird_down)
+        else:
+            update_bird(birdX, birdY)
+        if birdY > height or birdY < 0:
+            game_over()
+
+        # UPDATE SCORE
+        show_score(textX, textY)
+
+        pygame.display.update()
