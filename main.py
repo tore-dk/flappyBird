@@ -63,6 +63,8 @@ def ball_jump():
 
 
 # PIPES IN PAIRS
+gap_upper = 400
+gap_lower = 250
 between_pipes = 500
 pipecount = width//between_pipes + 2
 pipeIMG = []
@@ -77,7 +79,7 @@ for i in range(pipecount):
     pipe2IMG.append(pygame.transform.flip(pygame.image.load('flappy.png'), True, True))
     pipeX.append(width)
     pipe_state.append(False)
-    gap = random.randrange(250, 400)
+    gap = random.randrange(gap_lower, gap_upper)
     pipe_gap.append(gap)
     # WHEN EDITING PIPE Y  IT IS IMPORTANT -
     # TO EDIT IT BELOW, TOO (INSIDE 'pipe_reset')
@@ -94,7 +96,8 @@ def pipe(x, index, space):
 def pipe_reset(num):
     global pipeX, pipeY
     pipeX[num] = width
-    pipeY[num] = random.randrange(gap + 50, height - 50)
+    pipe_gap[num] = random.randrange(gap_lower, gap_upper)
+    pipeY[num] = random.randrange(pipe_gap[num] + 50, height - 50)
 
 
 # COLLISIONS ARE BEING CHECKED IN THE LOOP FOR THE PIPES
@@ -110,7 +113,7 @@ def reset():
     for i in range(pipecount):
         pipeX.append(width)
         pipe_state.append(False)
-        gap = random.randrange(250, 400)
+        gap = random.randrange(gap_lower, gap_upper)
         pipe_gap.append(gap)
         pipeY.append(random.randrange(gap + 50, height - 50))
     pipe_state[0] = True
@@ -119,6 +122,7 @@ def reset():
     birdY = (2 * height) / 3
     bird_velocity = -0
     bird_acceleration = 4
+    score = 0
 
 
 # QUIT GAME
@@ -135,7 +139,6 @@ def game_over():
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 end, running, go = False, False, False
-                print("lol")
             if i.type == pygame.KEYDOWN:
                 if i.key == pygame.K_SPACE:
                     end = False
@@ -233,6 +236,7 @@ while running:
                 pipe_reset(i)
                 pipe_state[i] = False
                 birdX += 10
+                gap_upper -= 5
             elif pipeX[i] < width - between_pipes:
                 pipe_state[(i + 1) % pipecount] = True
             # UPDATE PIPE ON SCREEN
@@ -256,7 +260,7 @@ while running:
             update_bird(birdX, birdY, bird_down)
         else:
             update_bird(birdX, birdY)
-        if birdY > height or birdY < 0:
+        if birdY > height - bird_height or birdY < 0:
             game_over()
 
         # UPDATE SCORE
