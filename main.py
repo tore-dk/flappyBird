@@ -1,26 +1,34 @@
 import pygame
 import time
 import random
+import math
 
 pygame.init()
-width, height = 3000, 864
+width, height = 1600, 900
 screen = pygame.display.set_mode((width, height))
-
-velocity = 50
 
 # BACKGROUND INITIATE
 # IDE MAN KAN TAGE MODULO AF LÆNGDEN AF SKÆRMEN OG BRUGE DET TIL AT HAVE LANG SKÆRM
-bg_count = width // 2304 + 2
+bgIMG = pygame.image.load('flappyBackground.png')
+# RIGHT SIZE FOR THE BACKGROUND
+bg_width = bgIMG.get_rect().width
+bg_height = bgIMG.get_rect().height
+bg_scale = height / bg_height
+bg_width = math.ceil(bg_scale * bg_width)
+bg_height = math.ceil(bg_scale * bg_height)
+bgIMG = pygame.transform.scale(bgIMG, (bg_width, bg_height))
+
+
+bg_count = width // bg_height + 2
 bgIMG_list = []
 bgX = []
 bgY = []
-bgIMG = pygame.image.load('flappyBackground.png')
 bg_strech = 0
 for i in range(bg_count):
     bgIMG_list.append(bgIMG)
     bgX.append(bg_strech)
-    bg_strech += 2304
-    bgY.append(0)
+    bg_strech += bg_width
+    bgY.append(height - bgIMG.get_rect().height)
 
 
 def show_bg(x, y, index):
@@ -28,15 +36,23 @@ def show_bg(x, y, index):
 
 
 # BALL START
-ballIMG = pygame.image.load('ball.png')
+ballIMG = pygame.image.load('newBird.png')
+ballIMG = pygame.transform.scale(ballIMG, (math.ceil(128/1.5), math.ceil(90/1.5)))
+ball_height = ballIMG.get_rect().height
+ball_width = ballIMG.get_rect().width
 ballX = 300
 ballY = height/2
-ball_velocity = -velocity
-ball_acceleration = 9.8
+ball_velocity = -30
+ball_acceleration = 4
 
 
 def update_ball(x, y):
     screen.blit(ballIMG, (x, y))
+
+
+def ball_jump():
+    global ball_velocity
+    ball_velocity = -30
 
 
 # PIPES IN PAIRS
@@ -53,7 +69,7 @@ for i in range(pipecount):
     pipe2IMG.append(pygame.transform.flip(pygame.image.load('flappy.png'), True, True))
     pipeX.append(width)
     pipe_state.append(False)
-    gap = random.randrange(200, 500)
+    gap = random.randrange(250, 400)
     pipe_gap.append(gap)
     # WHEN EDITING PIPE Y  IT IS IMPORTANT -
     # TO EDIT IT BELOW, TOO (INSIDE 'pipe_reset')
@@ -107,8 +123,13 @@ def show_score(x, y):
 
 
 # BEFORE GAME
+titleIMG = pygame.image.load('flappyBirdText.png')
+title_height = titleIMG.get_rect().height
+title_width = titleIMG.get_rect().width
+titleIMG = pygame.transform.scale(titleIMG, (int(title_width/2), int(title_height/2)))
 wait = True
-
+up = True
+up_down_speed = 1
 while wait:
     for i in range(bg_count):
         bgX[i] -= pipe_speed/5
@@ -119,9 +140,21 @@ while wait:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 wait = False
+    # BIRD FLYING UP N DOWN
+    if ballY < height/3:
+        up = False
+        up_down_speed = 1
+    elif ballY > (2*height)/3:
+        up = True
+        up_down_speed = 1
+    if up:
+        ballY -= up_down_speed
+        up_down_speed += 0.1
+    else:
+        ballY += up_down_speed
+        up_down_speed += 0.1
     update_ball(ballX, ballY)
-    flappy_bird_textIMG = pygame.image.load('flappyBirdText.png')
-    screen.blit(flappy_bird_textIMG, (1000, height/2 - 250))
+    screen.blit(titleIMG, (width / 3, height / 2 - titleIMG.get_rect().height/2))
     pygame.display.update()
 
 
@@ -143,7 +176,7 @@ while go:
             go = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                ball_velocity = -40
+                ball_jump()
 
     # UPDATE PIPES
     for i in range(pipecount):
@@ -158,8 +191,8 @@ while go:
             pipe(pipeX[i], i, pipe_gap[i])
             pipeX[i] -= pipe_speed
         # IS THE BALL INSIDE THE PIPE?
-        if ballX < (pipeX[i] + 281) and ballX + 32 > pipeX[i]:
-            if ballY + 32 > pipeY[i] or ballY < pipeY[i] - pipe_gap[i]:
+        if ballX < (pipeX[i] + 281) and ballX + ball_width > pipeX[i]:
+            if ballY + ball_height > pipeY[i] or ballY < pipeY[i] - pipe_gap[i]:
                 end()
         # ADD SCORE AFTER PIPE
         if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
