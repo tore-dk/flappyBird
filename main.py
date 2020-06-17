@@ -1,5 +1,4 @@
 import pygame
-import time
 import random
 import math
 
@@ -35,24 +34,27 @@ def show_bg(x, y, index):
     screen.blit(bgIMG_list[index], (x, y))
 
 
-# BALL START
-ballIMG = pygame.image.load('newBird.png')
-ballIMG = pygame.transform.scale(ballIMG, (math.ceil(128/1.5), math.ceil(90/1.5)))
-ball_height = ballIMG.get_rect().height
-ball_width = ballIMG.get_rect().width
-ballX = 300
-ballY = (2*height)/3
-ball_velocity = -0
-ball_acceleration = 4
+# BIRD START
+birdIMG = pygame.image.load('newBird.png')
+birdIMG = pygame.transform.scale(birdIMG, (math.ceil(128 / 1.5), math.ceil(90 / 1.5)))
+bird_height = birdIMG.get_rect().height
+bird_width = birdIMG.get_rect().width
+birdX = 300
+birdY = (2 * height) / 3
+bird_velocity = -0
+bird_acceleration = 4
+
+bird_up = pygame.transform.rotate(birdIMG, 15)
+bird_down = pygame.transform.rotate(birdIMG, -15)
 
 
-def update_ball(x, y):
-    screen.blit(ballIMG, (x, y))
+def update_bird(x, y, img = birdIMG):
+    screen.blit(img, (x, y))
 
 
 def ball_jump():
-    global ball_velocity
-    ball_velocity = -30
+    global bird_velocity
+    bird_velocity = -30
 
 
 # PIPES IN PAIRS
@@ -146,13 +148,13 @@ while wait:
                 ball_jump()
                 wait = False
     # BIRD FLYING UP N DOWN
-    if ballY < height/2:
-        ball_velocity += 0.2
+    if birdY < height/2:
+        bird_velocity += 0.2
     else:
-        ball_velocity -= 0.2
-    ballY += ball_velocity
+        bird_velocity -= 0.2
+    birdY += bird_velocity
 
-    update_ball(ballX, ballY)
+    update_bird(birdX, birdY)
     screen.blit(titleIMG, (width / 3, height / 2 - titleIMG.get_rect().height/2))
     pygame.display.update()
 
@@ -192,20 +194,24 @@ while go:
             pipe(pipeX[i], i, pipe_gap[i])
             pipeX[i] -= pipe_speed
         # IS THE BALL INSIDE THE PIPE?
-        if ballX < (pipeX[i] + 281) and ballX + ball_width > pipeX[i]:
-            if ballY + ball_height > pipeY[i] or ballY < pipeY[i] - pipe_gap[i]:
+        if birdX < (pipeX[i] + 281) and birdX + bird_width > pipeX[i]:
+            if birdY + bird_height > pipeY[i] or birdY < pipeY[i] - pipe_gap[i]:
                 game_over()
         # ADD SCORE AFTER PIPE
-        if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
+        if pipeX[i] + 250 > birdX >= pipeX[i] + 250 - pipe_speed:
             score += 1
 
     # UPDATE BALL
-    ball_velocity += ball_acceleration
-    ballY += ball_velocity
-    update_ball(ballX, ballY)
-    if ballY > height or ballY < 0:
+    bird_velocity += bird_acceleration
+    birdY += bird_velocity
+    if bird_velocity < 0:
+        update_bird(birdX, birdY, bird_up)
+    elif bird_velocity > 0:
+        update_bird(birdX, birdY, bird_down)
+    else:
+        update_bird(birdX, birdY)
+    if birdY > height or birdY < 0:
         game_over()
-
     # UPDATE SCORE
     show_score(textX, textY)
 
