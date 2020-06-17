@@ -95,19 +95,23 @@ def pipe_reset(num):
 go = True
 
 
-def end():
+def game_over():
     global go
     go = False
-    game_over = pygame.image.load('flappyBirdGameOver.png')
-    screen.fill((0, 0, 0))
-    for j in range(bg_count):
-        show_bg(bgX[j], bgY[j], j)
-    screen.blit(game_over, (width/2 - 544, 100))
-    finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
-    wide = finalscore.get_rect().width
-    screen.blit(finalscore, (width/2 - wide/2, 500))
-    pygame.display.update()
-    time.sleep(5)
+    game_over_text = pygame.image.load('flappyBirdGameOver.png')
+    end = True
+    while end:
+        screen.fill((0, 0, 0))
+        for i in pygame.event.get():
+            if i.type == pygame.QUIT:
+                end = False
+        for j in range(bg_count):
+            show_bg(bgX[j], bgY[j], j)
+        screen.blit(game_over_text, (width/2 - 544, 100))
+        finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
+        wide = finalscore.get_rect().width
+        screen.blit(finalscore, (width/2 - wide/2, 500))
+        pygame.display.update()
 
 
 # SCORE
@@ -172,6 +176,8 @@ while go:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 ball_jump()
+    if not go:
+        break
 
     # UPDATE PIPES
     for i in range(pipecount):
@@ -188,17 +194,17 @@ while go:
         # IS THE BALL INSIDE THE PIPE?
         if ballX < (pipeX[i] + 281) and ballX + ball_width > pipeX[i]:
             if ballY + ball_height > pipeY[i] or ballY < pipeY[i] - pipe_gap[i]:
-                end()
+                game_over()
         # ADD SCORE AFTER PIPE
         if pipeX[i] + 250 > ballX >= pipeX[i] + 250 - pipe_speed:
             score += 1
 
     # UPDATE BALL
-    ballY += ball_velocity
     ball_velocity += ball_acceleration
+    ballY += ball_velocity
     update_ball(ballX, ballY)
     if ballY > height or ballY < 0:
-        end()
+        game_over()
 
     # UPDATE SCORE
     show_score(textX, textY)
