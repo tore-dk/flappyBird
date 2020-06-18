@@ -104,7 +104,7 @@ def pipe_reset(num):
 
 # RESET VARIABLES WHEN DEAD
 def reset():
-    global pipeX, pipeY, pipe_state, pipe_gap, birdX, birdY, bird_acceleration, bird_velocity
+    global pipeX, pipeY, pipe_state, pipe_gap, birdX, birdY, bird_acceleration, bird_velocity, score
     # RESET PIPES
     pipeX = []
     pipeY = []
@@ -130,7 +130,7 @@ go = True
 
 
 def game_over():
-    global go, running, wait
+    global go, running, wait, high_score
     running = True
     game_over_text = pygame.image.load('flappyBirdGameOver.png')
     end = True
@@ -150,6 +150,9 @@ def game_over():
         finalscore = sfont.render('FINAL SCORE : ' + str(score), True, (252, 160, 72))
         wide = finalscore.get_rect().width
         screen.blit(finalscore, (width/2 - wide/2, 500))
+        if score > high_score:
+            high_score = score
+        show_high_score_in_middle()
         pygame.display.update()
 
 
@@ -163,6 +166,15 @@ textX, textY = 10, 10
 def show_score(x, y):
     thescore = sfont.render("Score: " + str(score), True, (255, 255, 0))
     screen.blit(thescore, (x, y))
+
+
+high_score = 0
+
+
+def show_high_score_in_middle():
+    h_score = sfont.render('HIGH SCORE: ' + str(high_score), True, (255, 0, 0))
+    h_score_width = h_score.get_rect().width
+    screen.blit(h_score, (width/2 - h_score_width/2, 600))
 
 
 # BEFORE GAME VARIABLES
