@@ -44,7 +44,7 @@ birdIMG = pygame.image.load('newBird.png')
 birdIMG = pygame.transform.scale(birdIMG, (math.ceil(128 / 1.5), math.ceil(90 / 1.5)))
 bird_height = birdIMG.get_rect().height
 bird_width = birdIMG.get_rect().width
-birdX = 300
+birdX = 100
 birdY = (2 * height) / 3
 bird_velocity = -0
 bird_acceleration = 4
@@ -53,7 +53,7 @@ bird_up = pygame.transform.rotate(birdIMG, 15)
 bird_down = pygame.transform.rotate(birdIMG, -15)
 
 
-def update_bird(x, y, img = birdIMG):
+def update_bird(x, y, img=birdIMG):
     screen.blit(img, (x, y))
 
 
@@ -104,21 +104,23 @@ def pipe_reset(num):
 
 # RESET VARIABLES WHEN DEAD
 def reset():
-    global pipeX, pipeY, pipe_state, pipe_gap, birdX, birdY, bird_acceleration, bird_velocity, score
+    global pipeX, pipeY, pipe_state, pipe_gap, birdX, birdY, bird_acceleration, bird_velocity, score, pipe_speed, gap_upper
     # RESET PIPES
+    gap_upper = 400
+    pipe_speed = 8
     pipeX = []
     pipeY = []
     pipe_state = []
     pipe_gap = []
-    for i in range(pipecount):
+    for j in range(pipecount):
         pipeX.append(width)
         pipe_state.append(False)
-        gap = random.randrange(gap_lower, gap_upper)
+        new_gap = random.randrange(gap_lower, gap_upper)
         pipe_gap.append(gap)
         pipeY.append(random.randrange(gap + 50, height - 50))
     pipe_state[0] = True
     # RESET BIRD
-    birdX = 300
+    birdX = 100
     birdY = (2 * height) / 3
     bird_velocity = -0
     bird_acceleration = 4
@@ -136,11 +138,11 @@ def game_over():
     end = True
     while end:
         screen.fill((0, 0, 0))
-        for i in pygame.event.get():
-            if i.type == pygame.QUIT:
+        for j in pygame.event.get():
+            if j.type == pygame.QUIT:
                 end, running, go = False, False, False
-            if i.type == pygame.KEYDOWN:
-                if i.key == pygame.K_SPACE:
+            if j.type == pygame.KEYDOWN:
+                if j.key == pygame.K_SPACE:
                     end = False
                     reset()
                     ball_jump()
@@ -248,7 +250,8 @@ while running:
                 pipe_reset(i)
                 pipe_state[i] = False
                 birdX += 10
-                gap_upper -= 5
+                gap_upper -= 10
+                pipe_speed += 0.5
             elif pipeX[i] < width - between_pipes:
                 pipe_state[(i + 1) % pipecount] = True
             # UPDATE PIPE ON SCREEN
