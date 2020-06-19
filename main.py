@@ -12,7 +12,6 @@ width, height = 1600, 900
 screen = pygame.display.set_mode((width, height))
 
 # BACKGROUND INITIATE
-# IDE MAN KAN TAGE MODULO AF LÆNGDEN AF SKÆRMEN OG BRUGE DET TIL AT HAVE LANG SKÆRM
 bgIMG = pygame.image.load('flappyBackground.png')
 # RIGHT SIZE FOR THE BACKGROUND
 bg_width = bgIMG.get_rect().width
@@ -49,22 +48,21 @@ birdY = (2 * height) / 3
 bird_velocity = -0
 bird_acceleration = 4
 
-bird_up = pygame.transform.rotate(birdIMG, 15)
 bird_down = pygame.transform.rotate(birdIMG, -15)
-
+bird_up = pygame.transform.rotate(birdIMG, 15)
 
 def update_bird(x, y, img=birdIMG):
     screen.blit(img, (x, y))
 
 
-def ball_jump():
+def bird_jump():
     global bird_velocity
     bird_velocity = -30
 
 
 # PIPES IN PAIRS
 gap_upper = 400
-gap_lower = 250
+gap_lower = 200
 between_pipes = 500
 pipecount = width//between_pipes + 2
 pipeIMG = []
@@ -145,7 +143,7 @@ def game_over():
                 if j.key == pygame.K_SPACE:
                     end = False
                     reset()
-                    ball_jump()
+                    bird_jump()
         for j in range(bg_count):
             show_bg(bgX[j], bgY[j], j)
         screen.blit(game_over_text, (width/2 - 544, 100))
@@ -198,7 +196,7 @@ def before_game():
             wait, go, running = False, False, False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                ball_jump()
+                bird_jump()
                 wait = False
     # BIRD FLYING UP N DOWN
     if birdY < height / 2:
@@ -239,7 +237,7 @@ while running:
                 go, wait, running = False, False, False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    ball_jump()
+                    bird_jump()
         if not go:
             break
 
@@ -250,8 +248,14 @@ while running:
                 pipe_reset(i)
                 pipe_state[i] = False
                 birdX += 10
-                gap_upper -= 10
-                pipe_speed += 0.5
+                if gap_upper - gap_lower > 6:
+                    gap_upper -= 5
+                else:
+                    birdIMG = pygame.image.load('flappyBirdRed.png')
+                    birdIMG = pygame.transform.scale(birdIMG, (math.ceil(128/1.5), math.ceil(90/1.5)))
+                    bird_up = pygame.transform.rotate(birdIMG, 15)
+                    bird_down = pygame.transform.rotate(birdIMG, -15)
+                pipe_speed += 0.1 # TEMPORARY
             elif pipeX[i] < width - between_pipes:
                 pipe_state[(i + 1) % pipecount] = True
             # UPDATE PIPE ON SCREEN
